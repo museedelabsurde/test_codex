@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TV Home Builder</title>
+<style>
+:root{
+  --bg:#f5f4f0; --panel:#ffffff; --ink:#1b1c1f; --muted:#62656d; --line:#dcdad3;
+  --accent:#b8792a; --accent-ink:#ffffff; --field:#fbfaf7; --code:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121417; --panel:#1b1e23; --ink:#e9e7e2; --muted:#9a9ea7; --line:#2d3139;
+    --accent:#e8a84c; --accent-ink:#15181e; --field:#16191d; --code:#101215;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121417; --panel:#1b1e23; --ink:#e9e7e2; --muted:#9a9ea7; --line:#2d3139;
+  --accent:#e8a84c; --accent-ink:#15181e; --field:#16191d; --code:#101215;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:20px 16px 8px;max-width:1280px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px}
+header p{margin:0;color:var(--muted)}
+main{max-width:1280px;margin:0 auto;padding:12px 16px 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;align-items:start}
+@media (max-width:900px){main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+details{border-top:1px solid var(--line);padding:10px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:600}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:10px;align-items:center;margin:8px 0}
+.row label{font-size:14px}
+.row small{display:block;color:var(--muted);font-size:12px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit}
+textarea{min-height:64px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+input[type=range]{width:100%}
+input[type=file]{width:100%;max-width:100%;font-size:13px}
+.tv .rows{margin:0 auto}
+input[type=color]{width:48px;height:32px;border:1px solid var(--line);border-radius:6px;background:none;padding:0}
+.sticky{position:sticky;top:12px;display:flex;flex-direction:column;gap:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;overflow:auto;max-height:280px;font-size:12.5px}
+.muted{color:var(--muted);font-size:13px}
+/* TV mock */
+.tv{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000;border:6px solid #0b0b0c;box-shadow:0 6px 24px rgba(0,0,0,.25);color:#fff;container-type:inline-size}
+.tv .wp{position:absolute;inset:0;background-size:cover;background-position:center}
+.tv .dim{position:absolute;inset:0;background:#000}
+.tv .sky{position:absolute;inset:0;background:linear-gradient(180deg,#203a5c 0%,#0b1324 55%,transparent 100%)}
+.tv .glow{position:absolute;left:50%;top:62%;width:70%;height:60%;transform:translate(-50%,-50%);border-radius:50%;filter:blur(30px);opacity:.45}
+.tv .glow.horizon{left:0;top:0;width:100%;height:55%;transform:none;border-radius:0;background:linear-gradient(180deg,var(--g),transparent)!important;filter:none;opacity:.5}
+.tv .ui{position:absolute;inset:0;padding:4cqw 4.5cqw;display:flex;flex-direction:column}
+.tv .top{display:flex;justify-content:space-between;align-items:flex-start;gap:2cqw}
+.tv .greet{font-size:1.3cqw;letter-spacing:.15em;opacity:.75;text-transform:uppercase}
+.tv .clock{font-size:5.2cqw;font-weight:300;line-height:1}
+.tv .date{font-size:1.3cqw;opacity:.7}
+.tv .dateRow{display:flex;gap:1cqw;align-items:baseline}
+.tv .stats{font-size:1cqw;opacity:.6;margin-top:.4cqw}
+.tv .pills{display:flex;gap:.8cqw}
+.tv .pill{height:3cqw;min-width:3cqw;padding:0 1.1cqw;border-radius:2cqw;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:1.15cqw;white-space:nowrap}
+.tv .pill.ok{color:#7fe08a}
+.tv .spacer{flex:1}
+.tv .title{font-size:2.6cqw;font-weight:600;margin:0 0 1cqw .4cqw;min-height:3cqw}
+.tv .dock{border-radius:1.2cqw;padding:1cqw;display:grid;gap:1cqw}
+.tv .grid{display:grid;gap:1cqw;padding:1cqw 1cqw 0}
+.tv .tile{aspect-ratio:16/9;border-radius:.8cqw;display:flex;align-items:center;justify-content:center;font-size:1.05cqw;font-weight:600;text-align:center;padding:.3cqw;position:relative;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.tv .tile.empty{background:rgba(255,255,255,.05)!important;border:1px dashed rgba(255,255,255,.2)}
+.tv .tile.focus{outline:.25cqw solid #fff;outline-offset:.2cqw;transform:scale(1.06)}
+.tv .tile.focus.rim{box-shadow:none}
+.tv .tile.focus.glass{box-shadow:0 0 1.6cqw rgba(255,255,255,.35)}
+.tv .tile.focus.halo{box-shadow:0 0 2.4cqw rgba(255,255,255,.55)}
+.tv .name{position:absolute;bottom:.2cqw;left:0;right:0;font-size:.85cqw;font-weight:400;opacity:.8}
+.tv .wrapTile{display:flex;flex-direction:column;gap:.3cqw}
+.tv .under{font-size:.9cqw;text-align:center;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv .lib{align-self:center;margin-top:1cqw;font-size:1.1cqw;padding:.5cqw 1.4cqw;border-radius:2cqw;background:rgba(255,255,255,.12)}
+.warn{color:#c0392b;font-size:13px;margin:6px 0 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>TV Home Builder</h1>
+  <p>Konfigurator ekranu głównego launchera <b>Clean Your TV</b>. Ustaw opcje, sprawdź podgląd, pobierz <code>config.json</code> i wyślij go na TV skryptem <code>push-theme.sh</code>.</p>
+</header>
+<main>
+  <section class="panel" id="form" aria-label="Ustawienia"></section>
+  <section class="sticky">
+    <div class="panel">
+      <div class="tv" id="tv" aria-label="Podgląd ekranu TV"></div>
+      <p class="muted" style="margin:8px 0 0">Podgląd jest przybliżony: kafelki to kolorowe zastępniki banerów aplikacji. Ostateczny wygląd sprawdź na TV.</p>
+    </div>
+    <div class="panel">
+      <div class="btns" style="margin-bottom:10px">
+        <button class="primary" id="dl">Pobierz config.json</button>
+        <button id="copy">Kopiuj JSON</button>
+        <button id="imp">Importuj config.json</button>
+        <input type="file" id="file" accept=".json,application/json" hidden>
+        <select id="preset" aria-label="Szablon" style="width:auto">
+          <option value="">Szablon…</option>
+          <option value="default">Domyślny launcher</option>
+          <option value="minimal">Minimalny</option>
+          <option value="cinema">Kino / OLED</option>
+          <option value="photo">Tapeta ze zdjęciem</option>
+          <option value="family">Rodzinny (duże kafelki)</option>
+        </select>
+        <button id="reset">Wyczyść</button>
+      </div>
+      <pre id="out"></pre>
+      <p class="muted" style="margin:10px 0 4px">Wysyłka na TV (Linux/macOS, w katalogu <code>tv-home-builder</code>):</p>
+      <pre id="cmd"></pre>
+      <div id="warns"></div>
+    </div>
+  </section>
+</main>
+<script>
+// Schemat: klucze z themes/README.md projektu Gathin23/cleanyourtv; domyślne wartości z launcher config.xml.
+const S = [
+ {g:"Dock i aplikacje", open:true},
+ {k:"dock_apps", t:"list", d:[], l:"Aplikacje w docku (kolejność)", h:"Jedna nazwa pakietu na linię. Brakujące są pomijane. Listę z TV daje ./list-apps.sh"},
+ {k:"fill_dock", t:"bool", d:true, l:"Uzupełniaj wolne miejsca docka", h:"Pierwszymi aplikacjami z siatki"},
+ {k:"hidden_apps", t:"list", d:[], l:"Ukryte aplikacje", h:"Nigdy nie pokazywane jako kafelki"},
+ {k:"top_bar_apps", t:"list", d:[], l:"Aplikacje na górnym pasku", h:"Okrągłe przyciski z logo, znikają z siatki"},
+ {k:"app_labels", t:"list", d:[], l:"Własne nazwy kafelków", h:"pakiet=Nazwa, np. com.netflix.ninja=Filmy"},
+ {k:"live_tv_package", t:"text", d:"", l:"Aplikacja Live TV", h:"Pakiet, np. com.mediatek.wwtv.tvcenter"},
+ {k:"boot_to_live_tv", t:"bool", d:false, l:"Po starcie TV otwórz Live TV", h:"Raz na uruchomienie; wymaga pakietu powyżej"},
+
+ {g:"Układ"},
+ {k:"columns", t:"int", d:4, min:1, max:8, l:"Kafelków w rzędzie", h:"Od 5 kafelki się zmniejszają"},
+ {k:"rows_below_dock", t:"int", d:0, min:0, max:3, l:"Widoczne rzędy pod dockiem"},
+ {k:"dock_row", t:"bool", d:true, l:"Dock jako osobny rząd"},
+ {k:"single_row", t:"bool", d:false, l:"Wszystko w jednym przewijanym rzędzie", h:"Wymaga docka jako osobnego rzędu"},
+ {k:"dock_title", t:"bool", d:true, l:"Duża nazwa aplikacji nad dockiem"},
+ {k:"always_show_names", t:"bool", d:false, l:"Nazwy pod każdym kafelkiem"},
+ {k:"uniform_tiles", t:"bool", d:false, l:"Jednolite kafelki z ikon", h:"Zamiast banerów aplikacji"},
+ {k:"app_library", t:"bool", d:false, l:"Biblioteka aplikacji", h:"Przycisk pod ostatnim rzędem: dodawanie/usuwanie z ekranu"},
+ {k:"tile_menu", t:"bool", d:true, l:"Menu kafelka (przytrzymaj OK)", h:"Przenieś, Usuń, Info"},
+
+ {g:"Wygląd"},
+ {k:"background_color", t:"color", d:"#000000", l:"Kolor tła"},
+ {k:"sky_intensity", t:"range", d:0, min:0, max:100, l:"Niebo zależne od pory dnia", h:"0 = wyłączone"},
+ {k:"dock_band", t:"bool", d:true, l:"Pas pod dockiem"},
+ {k:"dock_glass", t:"bool", d:false, l:"Pas docka jako matowe szkło"},
+ {k:"dock_opacity", t:"range", d:100, min:30, max:100, l:"Krycie pasa docka (%)"},
+ {k:"glass_style", t:"select", d:"glass", o:{glass:"glass – szkło z połyskiem",rim:"rim – sama obwódka",halo:"halo – obwódka z poświatą"}, l:"Styl podświetlenia"},
+ {k:"glow_style", t:"select", d:"radial", o:{radial:"radial – plama za dockiem",horizon:"horizon – od góry ekranu"}, l:"Kształt poświaty"},
+ {k:"ambient_glow", t:"bool", d:true, l:"Poświata w kolorze aplikacji"},
+ {k:"app_glow", t:"bool", d:false, l:"Kolorowe podświetlenie każdego kafelka"},
+
+ {g:"Tapeta"},
+ {k:"wallpaper", t:"bool", d:false, l:"Pokaż tapetę motywu", h:"wallpaper.jpg lub folder wallpapers/ w motywie"},
+ {k:"wallpaper_dim", t:"range", d:0, min:0, max:90, l:"Przyciemnienie tapety (%)"},
+ {k:"wallpaper_rotation_minutes", t:"int", d:0, min:0, max:1440, l:"Zmiana tapety co (min)", h:"0 = jedno zdjęcie; >0 = folder wallpapers/"},
+ {k:"wallpaper_order", t:"select", d:"shuffle", o:{shuffle:"losowo",sequential:"po kolei"}, l:"Kolejność tapet"},
+ {k:"wallpaper_true_color", t:"bool", d:false, l:"Tapeta w pełnym kolorze", h:"8 MB RAM przy 1080p – dla TV z ≥2 GB"},
+ {k:"_preview_wp", t:"file", l:"Podgląd tapety (lokalnie)", h:"Tylko do podglądu – plik zapisz jako wallpaper.jpg w folderze motywu"},
+
+ {g:"Górny pasek"},
+ {k:"icon_only_buttons", t:"bool", d:false, l:"Wi-Fi i Ustawienia jako ikony"},
+ {k:"icon_only_inputs", t:"bool", d:false, l:"Wejścia jako ikona"},
+ {k:"top_menu", t:"bool", d:false, l:"Wszystko w jednym przycisku (zębatka)"},
+ {k:"show_network_pill", t:"bool", d:true, l:"Pokaż sieć"},
+ {k:"show_inputs_pill", t:"bool", d:true, l:"Pokaż wejścia (HDMI)"},
+ {k:"wifi_status_color", t:"bool", d:false, l:"Zielona ikona Wi-Fi gdy online"},
+
+ {g:"Zegar i powitanie"},
+ {k:"show_greeting", t:"bool", d:true, l:"Powitanie nad zegarem"},
+ {k:"greeting_name", t:"text", d:"", l:"Imię w powitaniu", h:"np. „Ania” → GOOD EVENING, ANIA"},
+ {k:"clock_format", t:"select", d:"system", o:{system:"jak w TV","24":"24-godzinny","12":"12-godzinny"}, l:"Format zegara"},
+ {k:"date_below_clock", t:"bool", d:false, l:"Data pod zegarem"},
+ {k:"show_stats", t:"bool", d:false, l:"CPU / RAM / dysk pod zegarem"},
+ {k:"home_idle_clock_minutes", t:"int", d:0, min:0, max:1440, l:"Wygaszacz z zegarem po (min)", h:"0 = wyłączony"},
+ {k:"locale", t:"text", d:"", l:"Język launchera", h:"np. pl; puste = język TV"},
+
+ {g:"Ruch i wydajność"},
+ {k:"reduced_motion", t:"bool", d:false, l:"Ograniczone animacje", h:"Dla słabych TV (1 GB RAM)"},
+ {k:"animations", t:"bool", d:true, l:"Animacje"},
+ {k:"focus_overshoot", t:"bool", d:true, l:"Sprężysty ruch podświetlenia"},
+];
+const FIELDS = S.filter(x => x.k && x.t !== "file");
+const BYKEY = Object.fromEntries(FIELDS.map(f => [f.k, f]));
+
+const PRESETS = {
+  default:{},
+  minimal:{columns:5,dock_title:false,ambient_glow:false,glass_style:"rim",dock_band:false,icon_only_buttons:true,icon_only_inputs:true,show_greeting:false,reduced_motion:true},
+  cinema:{columns:6,dock_glass:true,dock_opacity:50,ambient_glow:false,glass_style:"rim",clock_format:"24",home_idle_clock_minutes:2,icon_only_buttons:true,wallpaper:true,wallpaper_true_color:true,wallpaper_dim:20},
+  photo:{wallpaper:true,wallpaper_rotation_minutes:30,wallpaper_order:"shuffle",wallpaper_dim:15,dock_glass:true,dock_opacity:70,ambient_glow:false,glass_style:"halo"},
+  family:{columns:4,always_show_names:true,dock_title:true,app_library:true,greeting_name:"",clock_format:"24",reduced_motion:true},
+};
+
+let state = {}; // only keys the user set (may equal defaults; emit filters)
+let wpURL = null;
+try { state = JSON.parse(localStorage.getItem("tvhb-state") || "{}") || {}; } catch(e) { state = {}; }
+
+const val = k => (k in state ? state[k] : BYKEY[k].d);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toList = s => s.split(/[\n,]+/).map(x => x.trim()).filter(Boolean);
+
+function buildForm(){
+  const root = document.getElementById("form");
+  let html = "", open = false;
+  for (const f of S){
+    if (f.g){ if (open) html += "</details>"; html += `<details ${f.open?"open":""}><summary>${f.g}</summary>`; open = true; continue; }
+    const id = "f_"+f.k, hint = f.h ? `<small>${esc(f.h)}</small>` : "";
+    let ctl = "";
+    if (f.t==="bool") ctl = `<input type="checkbox" id="${id}">`;
+    else if (f.t==="int") ctl = `<input type="number" id="${id}" min="${f.min}" max="${f.max}" step="1">`;
+    else if (f.t==="range") ctl = `<div style="display:flex;gap:8px;align-items:center"><input type="range" id="${id}" min="${f.min}" max="${f.max}"><span id="${id}_v" style="min-width:3ch"></span></div>`;
+    else if (f.t==="text") ctl = `<input type="text" id="${id}" spellcheck="false">`;
+    else if (f.t==="color") ctl = `<div style="display:flex;gap:8px;align-items:center"><input type="color" id="${id}"><input type="text" id="${id}_t" spellcheck="false" style="max-width:110px"></div>`;
+    else if (f.t==="list") ctl = `<textarea id="${id}" spellcheck="false" placeholder="com.example.app"></textarea>`;
+    else if (f.t==="select") ctl = `<select id="${id}">${Object.entries(f.o).map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join("")}</select>`;
+    else if (f.t==="file") ctl = `<input type="file" id="${id}" accept="image/*">`;
+    html += `<div class="row"><label for="${id}">${esc(f.l)}${hint}</label><div>${ctl}</div></div>`;
+  }
+  root.innerHTML = html + "</details>";
+
+  for (const f of FIELDS){
+    const el = document.getElementById("f_"+f.k);
+    const set = v => { state[f.k] = v; changed(); };
+    if (f.t==="bool") el.onchange = () => set(el.checked);
+    else if (f.t==="int") el.oninput = () => { if (el.value!=="") set(Math.max(f.min, Math.min(f.max, Math.round(+el.value)))); };
+    else if (f.t==="range") el.oninput = () => set(+el.value);
+    else if (f.t==="text"||f.t==="select") el.oninput = () => set(el.value);
+    else if (f.t==="list") el.oninput = () => set(toList(el.value));
+    else if (f.t==="color"){
+      const t = document.getElementById("f_"+f.k+"_t");
+      el.oninput = () => { t.value = el.value; set(el.value); };
+      t.oninput = () => { if (/^#[0-9a-fA-F]{6}$/.test(t.value)){ el.value = t.value; set(t.value.toLowerCase()); } };
+    }
+  }
+  document.getElementById("f__preview_wp").onchange = e => {
+    const file = e.target.files[0]; if (wpURL) URL.revokeObjectURL(wpURL);
+    wpURL = file ? URL.createObjectURL(file) : null; render();
+  };
+}
+
+function syncForm(){
+  for (const f of FIELDS){
+    const el = document.getElementById("f_"+f.k), v = val(f.k);
+    if (f.t==="bool") el.checked = !!v;
+    else if (f.t==="list"){ if (document.activeElement!==el) el.value = (v||[]).join("\n"); }
+    else if (f.t==="color"){ el.value = v; const t = document.getElementById("f_"+f.k+"_t"); if (document.activeElement!==t) t.value = v; }
+    else if (document.activeElement!==el) el.value = v;
+    if (f.t==="range") document.getElementById("f_"+f.k+"_v").textContent = v;
+  }
+}
+
+function emit(){
+  const o = {};
+  for (const f of FIELDS){
+    if (!(f.k in state)) continue;
+    const v = state[f.k], d = f.d;
+    if (JSON.stringify(v) === JSON.stringify(d)) continue;
+    o[f.k] = v;
+  }
+  return o;
+}
+
+function warnings(c){
+  const w = [];
+  if (val("single_row") && !val("dock_row")) w.push("„Wszystko w jednym rzędzie” wymaga docka jako osobnego rzędu.");
+  if (val("boot_to_live_tv") && !val("live_tv_package")) w.push("„Po starcie otwórz Live TV” wymaga pakietu Live TV.");
+  if (val("wallpaper_rotation_minutes")>0 && !val("wallpaper")) w.push("Rotacja tapet działa tylko z włączoną tapetą.");
+  if (val("dock_opacity")<100 && !val("wallpaper") && !val("sky_intensity")) w.push("Przezroczysty dock ma sens z tapetą lub niebem.");
+  for (const k of ["dock_apps","hidden_apps","top_bar_apps"]) for (const p of val(k)) if (!/^[A-Za-z][\w]*(\.[A-Za-z_][\w]*)+$/.test(p)) w.push(`„${p}” nie wygląda na nazwę pakietu (${k}).`);
+  for (const p of val("app_labels")) if (!/^[^=]+=.+$/.test(p)) w.push(`Etykieta „${p}” musi mieć postać pakiet=Nazwa.`);
+  const dup = val("dock_apps").filter(p => val("hidden_apps").includes(p));
+  if (dup.length) w.push("Ta sama aplikacja jest w docku i w ukrytych: " + dup.join(", "));
+  return w;
+}
+
+function hue(s){ let h=0; for (const c of s) h = (h*31 + c.charCodeAt(0)) >>> 0; return h % 360; }
+function short(p){ const labels = Object.fromEntries(val("app_labels").map(x=>x.split("=")).filter(x=>x.length>=2)); if (labels[p]) return labels[p]; const parts = p.split("."); let n = parts[parts.length-1]; if (/^(tv|android|app|ninja|livingroom|leanback|atv)$/i.test(n) && parts.length>1) n = parts[parts.length-2]; return n.charAt(0).toUpperCase()+n.slice(1); }
+
+const SAMPLE = ["com.netflix.ninja","com.google.android.youtube.tv","com.amazon.amazonvideo.livingroom","com.disney.disneyplus","com.spotify.tv.android","com.hbo.hbonow","pl.tvn.player","com.plexapp.android","org.videolan.vlc","com.android.tv.settings","com.google.android.apps.tv.launcherx","pl.canalplus.app","com.apple.atve.androidtv.appletv","tv.twitch.android.app","com.kodi"];
+
+function render(){
+  const c = emit();
+  document.getElementById("out").textContent = JSON.stringify(c, null, 2);
+  document.getElementById("cmd").textContent = "./list-apps.sh 192.168.1.50          # nazwy pakietów z TV\nTV_HOST=192.168.1.50 ./push-theme.sh moj-motyw ~/Pobrane/config.json [tapeta.jpg]\nTV_HOST=192.168.1.50 ./push-theme.sh --reset   # cofnięcie";
+  document.getElementById("warns").innerHTML = warnings(c).map(x=>`<p class="warn">⚠ ${esc(x)}</p>`).join("");
+  try { localStorage.setItem("tvhb-state", JSON.stringify(state)); } catch(e) {}
+
+  // --- preview ---
+  const cols = val("columns"), hidden = new Set(val("hidden_apps")), topApps = val("top_bar_apps");
+  let pool = [...new Set([...val("dock_apps"), ...SAMPLE])].filter(p => !hidden.has(p) && !topApps.includes(p));
+  const dockSet = val("dock_apps").filter(p => !hidden.has(p) && !topApps.includes(p)).slice(0, cols);
+  let dock = dockSet.slice();
+  const rest = pool.filter(p => !dock.includes(p));
+  if (val("fill_dock")) while (dock.length < cols && rest.length) dock.push(rest.shift());
+  const focused = dock[0] || rest[0] || "app";
+  const fh = hue(focused), gcol = `hsl(${fh} 70% 45%)`;
+  const glass = val("glass_style");
+  const names = val("always_show_names");
+  const uniform = val("uniform_tiles");
+  const tileBg = p => uniform ? `hsl(${hue(p)} 35% 22%)` : `linear-gradient(135deg,hsl(${hue(p)} 65% 42%),hsl(${(hue(p)+40)%360} 60% 28%))`;
+  const tile = (p,i,isDock) => {
+    if (!p) return `<div class="wrapTile"><div class="tile empty"></div></div>`;
+    const f = isDock && i===0, glow = (val("app_glow") && f) ? `;box-shadow:0 0 2cqw hsl(${hue(p)} 80% 55%)` : "";
+    return `<div class="wrapTile"><div class="tile ${f?"focus "+glass:""}" style="background:${tileBg(p)}${glow}">${uniform?"●":esc(short(p))}</div>${names||(f&&uniform)?`<div class="under">${esc(short(p))}</div>`:""}</div>`;
+  };
+  const dockTiles = [];
+  for (let i=0;i<cols;i++) dockTiles.push(tile(dock[i], i, true));
+  const gridRows = val("single_row") ? 0 : val("rows_below_dock");
+  let gridHTML = "";
+  if (gridRows>0){ const g = rest.slice(0, gridRows*cols); gridHTML = `<div class="grid" style="grid-template-columns:repeat(${cols},1fr)">${g.map((p,i)=>tile(p,i,false)).join("")}</div>`; }
+  const nRows = 1 + gridRows, rowH = (91/cols)*0.5625 + 1.4;
+  const scale = Math.min(1, (val("dock_title")?32:36) / (nRows*rowH + (val("app_library")?3:0)));
+  const dockBand = val("dock_row") && val("dock_band");
+  const bandBg = val("dock_glass") ? `rgba(255,255,255,${0.16*val("dock_opacity")/100})` : `rgba(18,20,24,${val("dock_opacity")/100})`;
+  const bandStyle = dockBand ? `background:${bandBg};${val("dock_glass")?"backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18)":""}` : "";
+  const now = new Date(), hh = now.getHours();
+  const fmt = val("clock_format");
+  const clock = fmt==="12" ? `${(hh%12)||12}:${String(now.getMinutes()).padStart(2,"0")} ${hh<12?"AM":"PM"}` : `${String(hh).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+  const greet = (hh<12?"Good morning":hh<18?"Good afternoon":"Good evening") + (val("greeting_name")?", "+val("greeting_name"):"");
+  const date = now.toLocaleDateString("pl-PL",{weekday:"long",day:"numeric",month:"long"});
+  let pills = topApps.map(p=>`<div class="pill" style="background:hsl(${hue(p)} 60% 40%)">${esc(short(p).slice(0,1))}</div>`).join("");
+  if (val("top_menu")) pills += `<div class="pill">⚙</div>`;
+  else {
+    if (val("show_inputs_pill")) pills += `<div class="pill">${val("icon_only_inputs")?"⎆":"⎆ Wejścia"}</div>`;
+    if (val("show_network_pill")) pills += `<div class="pill ${val("wifi_status_color")?"ok":""}">${val("icon_only_buttons")?"📶":"📶 Dom-WiFi"}</div>`;
+    pills += `<div class="pill">${val("icon_only_buttons")?"⚙":"⚙ Ustawienia"}</div>`;
+  }
+  const wp = val("wallpaper") && wpURL;
+  const wpLayer = val("wallpaper") ? (wp ? `<div class="wp" style="background-image:url('${wpURL}')"></div>` : `<div class="wp" style="background:linear-gradient(160deg,#2c3e50,#4a3b5c 50%,#1d2b3a)"></div>`) : "";
+  document.getElementById("tv").innerHTML = `
+    <div class="wp" style="background:${val("background_color")}"></div>
+    ${val("sky_intensity")>0?`<div class="sky" style="opacity:${val("sky_intensity")/100}"></div>`:""}
+    ${wpLayer}
+    ${val("wallpaper")&&val("wallpaper_dim")?`<div class="dim" style="opacity:${val("wallpaper_dim")/100}"></div>`:""}
+    ${val("ambient_glow")?`<div class="glow ${val("glow_style")==="horizon"?"horizon":""}" style="--g:${gcol};background:${gcol}"></div>`:""}
+    <div class="ui">
+      <div class="top">
+        <div>
+          ${val("show_greeting")?`<div class="greet">${esc(greet)}</div>`:""}
+          <div class="${val("date_below_clock")?"":"dateRow"}"><div class="clock">${clock}</div><div class="date">${esc(date)}</div></div>
+          ${val("show_stats")?`<div class="stats">CPU 12% · RAM 1,1 GB wolne · 4,2 GB wolne</div>`:""}
+        </div>
+        <div class="pills">${pills}</div>
+      </div>
+      <div class="spacer"></div>
+      ${val("dock_title")?`<div class="title">${esc(short(focused))}</div>`:""}
+      <div class="rows" style="width:${(scale*100).toFixed(1)}%">
+      <div class="dock" style="grid-template-columns:repeat(${cols},1fr);${bandStyle}">${dockTiles.join("")}</div>
+      ${gridHTML}
+      </div>
+      ${val("app_library")?`<div class="lib">Biblioteka aplikacji</div>`:""}
+    </div>`;
+}
+
+function changed(){ syncForm(); render(); }
+
+function loadConfig(obj){
+  state = {};
+  for (const [k,v] of Object.entries(obj||{})) if (BYKEY[k]) state[k] = v;
+  const unknown = Object.keys(obj||{}).filter(k => !BYKEY[k]);
+  changed();
+  if (unknown.length) alert("Zaimportowano. Klucze spoza formularza (pominięte w eksporcie): " + unknown.join(", "));
+}
+
+buildForm(); changed();
+document.getElementById("dl").onclick = () => {
+  const blob = new Blob([JSON.stringify(emit(), null, 2)+"\n"], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "config.json"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+document.getElementById("copy").onclick = async e => {
+  try { await navigator.clipboard.writeText(JSON.stringify(emit(), null, 2)); e.target.textContent = "Skopiowano"; } catch(err) { e.target.textContent = "Brak dostępu do schowka"; }
+  setTimeout(()=>e.target.textContent="Kopiuj JSON", 1500);
+};
+document.getElementById("imp").onclick = () => document.getElementById("file").click();
+document.getElementById("file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(t => { try { loadConfig(JSON.parse(t)); } catch(err) { alert("To nie jest poprawny JSON: " + err.message); } });
+  e.target.value = "";
+};
+document.getElementById("preset").onchange = e => { if (e.target.value) loadConfig(PRESETS[e.target.value]); e.target.value = ""; };
+document.getElementById("reset").onclick = () => loadConfig({});
+setInterval(render, 30000);
+</script>
+</body>
+</html>
