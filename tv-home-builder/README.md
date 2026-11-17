@@ -5,6 +5,9 @@ Narzędzie do własnego ekranu głównego na Android TV / Google TV, zbudowane n
 [cleanyourtv-app](https://github.com/udhaykumarbala/cleanyourtv-app).
 Doprecyzowane zadanie, od którego to wyszło: [PROMPT.md](PROMPT.md).
 
+> **Tylko Android TV / Google TV.** Telewizory LG (webOS), Samsung (Tizen) i Roku nie są obsługiwane —
+> dla LG zobacz [`../lg-webos/`](../lg-webos/).
+
 ## Analiza: czy da się to zrobić samym repo?
 
 **Tak, w dużej części.** `cleanyourtv-app` to aplikacja na telefon z Androidem, która przez ADB po Wi-Fi:
