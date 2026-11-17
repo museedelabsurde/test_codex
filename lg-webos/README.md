@@ -17,7 +17,11 @@
 jednego, ani drugiego (projekt sam odsyła właścicieli LG do strony
 [cleanyour.tv/not-android](https://cleanyour.tv/not-android)).
 
-Na webOS ekranu głównego nie da się wymienić bez roota. Do wyboru są trzy drogi, od najbezpieczniejszej:
+**Aktualizacja:** istnieje projekt [clean-your-tv-lg-webos](https://github.com/Razdva122/clean-your-tv-lg-webos),
+który daje własny ekran główny także **bez roota** (przez LG Developer Mode). Analiza i ryzyka:
+[clean-your-tv-lg-webos.md](clean-your-tv-lg-webos.md).
+
+Do wyboru są cztery drogi, od najbezpieczniejszej:
 
 ## 1. Ustawienia TV (bez ryzyka, 5 minut)
 
@@ -37,7 +41,12 @@ Pi-hole lub AdGuard Home (albo AdGuard DNS w routerze) z listami blokującymi do
 Usuwa część banerów i śledzenie bez dotykania TV. Uwaga: zbyt agresywna lista potrafi zepsuć aktualizacje
 lub sklep LG — w razie problemów wyłącz blokadę dla adresu TV.
 
-## 3. Root + Homebrew Channel (pełna kontrola, ryzyko)
+## 3. Clean Your TV for LG webOS, edycja No-root (umiarkowane ryzyko)
+
+Własny launcher, kolejność aplikacji, dock i motywy przez Developer Mode, bez roota. Szczegóły i znane błędy:
+[clean-your-tv-lg-webos.md](clean-your-tv-lg-webos.md).
+
+## 4. Root + Homebrew Channel (pełna kontrola, ryzyko)
 
 Dopiero root pozwala chować kafelki systemowe, wyłączać preinstalowane usługi i reklamy u źródła
 (np. [webos-debloat](https://gist.github.com/lucataco/7c303b443934008a9031a55cfca552ec)) oraz instalować
@@ -58,4 +67,4 @@ gwarancji, a nieudana próba może wymagać przywrócenia ustawień fabrycznych.
 ## Czego nie da się zrobić
 
 - Zainstalować launchera Clean Your TV ani innego launchera Androida.
-- Zmienić układu ekranu głównego webOS bez roota poza edycją kolejności kafelków.
+- Usunąć reklam LG poza własnym launcherem bez roota (No-root zmienia tylko ekran główny).
